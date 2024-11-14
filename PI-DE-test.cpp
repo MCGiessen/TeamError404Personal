@@ -1,4 +1,4 @@
-﻿// PI-DE-test.cpp : Defines the entry point for the application.
+// PI-DE-test.cpp : Defines the entry point for the application.
 //
 #include <pthread.h>
 #include <signal.h>

@@ -75,7 +75,7 @@ void* steering_control(void* arg) {
 
     // Main loop to apply PWM signals for steering
     while (running) {
-        printf("steering working\n");
+      //  printf("steering working\n");
         unsigned int duty_cycle_us = map_input_to_us(steering_input_adj * steering_input);
         apply_pwm_pulse(steering_line, duty_cycle_us, Steer_Freq);
     }

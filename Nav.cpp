@@ -58,6 +58,7 @@ CarData::~CarData()
     delete[] mag_displace;
 }
 
+int c = 0;
 
 //update object data
 void CarData::update(Point currentWaypoint) {
@@ -71,9 +72,15 @@ void CarData::update(Point currentWaypoint) {
         i = (i + 1) % 200000;
         loc[i].x = current_data.x;
         loc[i].y = current_data.y;
-        loc[i].h = current_data.h;
+        //loc[i].h = current_data.h;
+        loc[i].h = 2*acos(current_data.h);
         loc[i].t = elapsed_seconds;
-
+    
+    c++;
+    if(c%100==0)
+      printf("heading: %f\n", loc[i].h);
+    
+    
         //calculate new velocity
         j = (i - 1) % 200000;
         velocity.x = (loc[i].x - loc[j].x) / (loc[i].t - loc[j].t);
@@ -148,39 +155,29 @@ void CarData::decide_turn(Point current_p)
 
     if ((relative_heading <= 0.1) && ((mag_displace[i] - mag_displace[j]) < 0))
     {
-        turn_flag = 0;
-        steering_input = 0;
-        throttle_input = 1;
-        return;
+     steering_input = 0;
+     throttle_input = 1;
+     return;
     }
 
     if ((relative_heading <= 0.3) && (relative_heading > 0.1))
     {
-        turn_flag = 1;
-        steering_input = get_orientation(current_p) * 0.1f;
-        return;
-    }
-
-    if (relative_heading > 0.3f && ((mag_displace[i] - mag_displace[j]) < 0) && (mag_displace[i] < 3) && (mag_displace[i] > .5))
-    {
-        //flag icr turn
-        turn_flag = 2;
-        printf("Turn Flag: %d \n", turn_flag);
-        steering_input = get_orientation(current_p) * 0.2f;
-        return;
+     steering_input = get_orientation(current_p) * 0.2f;
+     return;
     }
 
     if (relative_heading > 0.3f)
     {
         //if (turn_flag == 3) { steeringInput = steeringInput / 2; return; }
-        steering_input = get_orientation(current_p) * 0.2f;
+        steering_input = get_orientation(current_p) * relative_heading;
+        return;
     }
 
     if ((mag_displace[i] - mag_displace[j]) > 0)
     {
         //flag change heading
         turn_flag = 3;
-        printf("Turn Flag: %d \n", turn_flag);
+       // printf("Turn Flag: %d \n", turn_flag);
         throttle_input = .5;
         steering_input = get_orientation(current_p);
     }
@@ -227,11 +224,16 @@ void CarData::Main_Update(Point currentWaypoint)
     update(currentWaypoint);
 
     //if close to wall, reset
-    if (loc[i].x < .1 || loc[i].x > 12.09 || loc[i].y < .1 || loc[i].y > 12.09)
-    {
-        turn_flag = 0;
-    }
-
+ //   if (loc[i].x < -6 || loc[i].x > 6 || loc[i].y < -10 || loc[i].y > 8)
+ //   {
+ //       turn_flag = 0;
+ //   }
+    
+    update(currentWaypoint);
+       decide_turn(currentWaypoint);
+       return;
+    
+    /*
     if (turn_flag < 2) //going straight or small adjustment
     {
         steering_input = 0;
@@ -274,30 +276,21 @@ void CarData::Main_Update(Point currentWaypoint)
         return;
     }
     if (turn_flag > 3) { turn_flag = 0; return; }
+     
+     */
 }
 
 void CarData::handle_waypoints()
 {
     //printf("displacement: %f", mag_displace[i]);
-    if ((mag_displace[i] < 0.05f) && (wFlag < 3))
+    if (mag_displace[i] < 0.1f)
     {
         printf("Displacement: %f\n", mag_displace[i]);
         printf("handled\n");
-        ++wFlag;
+        wFlag = (wFlag + 1)%Course.size();
         printf("wFlag: %d\n", wFlag);
         currentWaypoint = Course[wFlag];
         turn_flag = 0;
-        return;
-    }
-
-    if ((mag_displace[i] < 0.05f) && (wFlag == 3))
-    {
-        //throttleInput = 0;
-        printf("Course Complete\n");
-        wFlag = 0;
-        currentWaypoint = Course[wFlag];
-        //running = false;
-
         return;
     }
     else

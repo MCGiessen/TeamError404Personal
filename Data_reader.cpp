@@ -67,9 +67,9 @@ void get_data() {
          //   << "Heading: " << data->heading << std::endl;
 
 
-        current_data.x = data->x;
-        current_data.y = data->z;
-        current_data.h = data->heading; 
+        current_data.x = data->z;
+        current_data.y = data->x;
+        current_data.h = data->heading;
         
         auto current_time = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed = current_time - start_time;

@@ -10,7 +10,6 @@ set(CMAKE_CXX_COMPILER g++)
 
 project ("PI-DE-test")
 
-
 # Add source to this project's executable.
 add_executable (PI-DE-test "PI-DE-test.cpp" "PI-DE-test.h" "Control.cpp" "Control.h" "Data_reader.cpp" "Global.cpp" "Global.h" "Nav.cpp" "Nav.h")
 
